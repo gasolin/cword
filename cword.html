@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <style>
+      .A4 {
+        background: white;
+        width: 21cm;
+        height: 29.7cm;
+        box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+        margin: 0 auto;
+        margin-top: 60px;
+        padding: 10px 25px;
+      }
+      .watermark {
+        position: fixed;
+        bottom: 5px;
+        right: 5px;
+        opacity: 0.5;
+        z-index: 99;
+        color: black;
+      }
+      @media print {
+        .no-print,
+        .no-print * {
+          display: none !important;
+        }
+      }
+    </style>
+    <script>
+      function createWord(word) {
+        const url = word
+          ? `https://eword.ntpc.edu.tw/char/${word}.jpg`
+          : "https://eword.ntpc.edu.tw/刊頭.jpg";
+        const img = document.createElement("img");
+        img.src = url;
+
+        let col = document.createElement("div");
+        col.className = "col-xs-2";
+
+        col.appendChild(img);
+        return col;
+      }
+
+      function addPage(words) {
+        console.log(words);
+        const row = document.createElement("div");
+        row.className = "row justify-content-center A4";
+
+        row.appendChild(createWord());
+        for (const w of words) {
+          row.insertBefore(createWord(w), row.firstChild);
+        }
+        document.getElementById("board").appendChild(row);
+      }
+
+      document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+          const gWordsPerPage = 5;
+          const urlParams = new URLSearchParams(window.location.search);
+          let words = urlParams.get("w");
+          document.getElementById("words").value = words;
+          while (words.length) {
+            addPage(words.substr(0, gWordsPerPage));
+            words = words.substr(gWordsPerPage, words.length);
+          }
+        },
+        false
+      );
+    </script>
+    <title>生字練習簿</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <span class="navbar-brand">生字練習簿產生器</span>
+      <span class="mr-auto"></span>
+      <form class="form-inline my-2 my-md-0" action="cword.html" method="get">
+        <input
+          id="words"
+          class="form-control mr-sm-2"
+          type="text"
+          name="w"
+          placeholder="請輸入想列印的生字"
+          aria-label="words"
+        />
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+          更新
+        </button>
+      </form>
+    </nav>
+    <div id="board" class="container"></div>
+
+    <div class="watermark no-print">
+      本網頁生字圖檔取自<a href="https://eword.ntpc.edu.tw/">新北市政府教育局</a
+      >網站
+    </div>
+  </body>
+</html>
