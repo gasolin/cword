@@ -54,51 +54,65 @@
       }
 
       function addPage(words) {
-        console.log(words);
         const row = document.createElement("div");
         row.className = "row justify-content-center A4";
 
-        row.appendChild(createWord());
+        let childElements = [createWord()];
         for (const w of words) {
-          row.insertBefore(createWord(w), row.firstChild);
+          childElements.unshift(createWord(w));
+        }
+
+        for (const e of childElements) {
+          row.appendChild(e);
         }
         document.getElementById("board").appendChild(row);
       }
 
-      document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-          const gWordsPerPage = 5;
-          const urlParams = new URLSearchParams(window.location.search);
-          let words = urlParams.get("w");
-          document.getElementById("words").value = words;
-          while (words.length) {
-            addPage(words.substr(0, gWordsPerPage));
-            words = words.substr(gWordsPerPage, words.length);
-          }
-        },
-        false
-      );
+      function onUpdate() {
+        const gWordsPerPage = 5;
+        document.getElementById("board").innerHTML = "";
+
+        let words = document.getElementById("words").value;
+        console.log(`onUpdate: ${words}`);
+
+        while (words.length) {
+          addPage(words.substr(0, gWordsPerPage));
+          words = words.substr(gWordsPerPage, words.length);
+        }
+      }
+
+      function init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const words = document.getElementById("words");
+        words.value = urlParams.get("w") || "生字練習簿";
+        words.select();
+        words.focus();
+
+        // auto-update
+        let timer;
+        words.addEventListener("input", () => {
+          clearTimeout(timer);
+          timer = setTimeout(onUpdate, 500);
+        });
+        onUpdate();
+      }
+      document.addEventListener("DOMContentLoaded", init, false);
     </script>
     <title>生字練習簿</title>
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <span class="navbar-brand">生字練習簿產生器</span>
-      <span class="mr-auto"></span>
-      <form class="form-inline my-2 my-md-0" action="cword.html" method="get">
+      <span class="mr-auto"> </span>
+      <span class="form-inline my-2 my-md-0">
         <input
           id="words"
           class="form-control mr-sm-2"
           type="text"
-          name="w"
           placeholder="請輸入想列印的生字"
           aria-label="words"
         />
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-          更新
-        </button>
-      </form>
+      </span>
     </nav>
     <div id="board" class="container"></div>
 
