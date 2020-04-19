@@ -62,18 +62,22 @@
           childElements.unshift(createWord(w));
         }
 
+        if (!!document.getElementById("left2right").checked) {
+          childElements = childElements.reverse();
+        }
+
         for (const e of childElements) {
           row.appendChild(e);
         }
         document.getElementById("board").appendChild(row);
       }
 
-      function onUpdate() {
+      function doUpdate() {
         const gWordsPerPage = 5;
         document.getElementById("board").innerHTML = "";
 
         let words = document.getElementById("words").value;
-        console.log(`onUpdate: ${words}`);
+        console.log(`doUpdate: ${words}`);
 
         while (words.length) {
           addPage(words.substr(0, gWordsPerPage));
@@ -85,16 +89,21 @@
         const urlParams = new URLSearchParams(window.location.search);
         const words = document.getElementById("words");
         words.value = urlParams.get("w") || "生字練習簿";
-        words.select();
-        words.focus();
 
         // auto-update
         let timer;
-        words.addEventListener("input", () => {
+        let onUpdate = () => {
           clearTimeout(timer);
-          timer = setTimeout(onUpdate, 500);
-        });
-        onUpdate();
+          timer = setTimeout(doUpdate, 500);
+        };
+        words.addEventListener("input", onUpdate);
+        document
+          .getElementById("left2right")
+          .addEventListener("change", onUpdate);
+
+        words.select();
+        words.focus();
+        doUpdate();
       }
       document.addEventListener("DOMContentLoaded", init, false);
     </script>
@@ -103,8 +112,14 @@
   <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <span class="navbar-brand">生字練習簿產生器</span>
-      <span class="mr-auto"> </span>
+      <span class="mr-auto"></span>
       <span class="form-inline my-2 my-md-0">
+        <div class="form-check">
+          <input id="left2right" class="form-check-input" type="checkbox" />
+          <label class="form-check-label text-white" for="left2right">
+            由左至右排
+          </label>
+        </div>
         <input
           id="words"
           class="form-control mr-sm-2"
